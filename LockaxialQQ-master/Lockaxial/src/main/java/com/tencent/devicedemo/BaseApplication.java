@@ -18,6 +18,7 @@ import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import java.io.File;
 
@@ -44,6 +45,8 @@ public class BaseApplication extends Application implements Thread.UncaughtExcep
         initImageLoader();
 
         ArcsoftManager.getInstance().initArcsoft(this);
+
+        initCrashSdk();
 
         super.onCreate();
     }
@@ -97,6 +100,10 @@ public class BaseApplication extends Application implements Thread.UncaughtExcep
                 .build();
 
 
+    }
+
+    private void initCrashSdk() {
+        CrashReport.initCrashReport(getApplicationContext(), "b53aa35fe0", false);
     }
 
     public HttpUtils getHttpUtils() {

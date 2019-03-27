@@ -129,6 +129,7 @@ import com.guo.android_extend.java.AbsLoop;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.synjones.dysmart.IdCardUtil;
 import com.synjones.idcard.IDCard;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.device.TXBinderInfo;
 import com.tencent.device.TXDeviceService;
 import com.tencent.devicedemo.interfac.NetworkCallBack;

@@ -89,6 +89,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!--蓝牙静默开启，已适配Android6.0-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
