@@ -101,13 +101,13 @@ public class FaceHelp {
         faceListener = null;
         faceInfoList = null;
     }
-
+    int code = 0;
     public List<FacePreviewInfo> onPreviewFrame(byte[] nv21) {
         if (faceListener != null) {
             if (faceEngine != null) {
                 faceInfoList.clear();
-                long ftStartTime = System.currentTimeMillis();
-                int code = faceEngine.detectFaces(nv21, previewSize.width, previewSize.height, FaceEngine.CP_PAF_NV21, faceInfoList);
+//                long ftStartTime = System.currentTimeMillis();
+                code = faceEngine.detectFaces(nv21, previewSize.width, previewSize.height, FaceEngine.CP_PAF_NV21, faceInfoList);
                 if (code != ErrorInfo.MOK) {
                     faceListener.onFail(new Exception("ft failed,code is " + code));
                 } else {

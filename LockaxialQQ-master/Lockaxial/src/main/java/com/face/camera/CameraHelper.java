@@ -83,8 +83,8 @@ public class CameraHelper implements Camera.PreviewCallback {
                 List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
                 if (supportedPreviewSizes != null && supportedPreviewSizes.size() > 0) {
 //                    previewSize = getBestSupportedSize(supportedPreviewSizes, metrics);
-                    previewSize.width = 640;
-                    previewSize.height = 480;
+                    previewSize.width = 320;
+                    previewSize.height = 240;
                 }
                 parameters.setPreviewSize(previewSize.width, previewSize.height);
 

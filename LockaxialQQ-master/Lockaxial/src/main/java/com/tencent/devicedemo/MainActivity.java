@@ -403,23 +403,25 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
             }
         }
     };
+    private List<DrawInfo> mDrawInfoList = new ArrayList<>();
+    private List<FacePreviewInfo> mFacePreviewInfoList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //全屏设置，隐藏窗口所有装饰
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);//清除FLAG
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //标题是属于View的，所以窗口所有的修饰部分被隐藏后标题依然有效
-        //requestWindowFeature(getWindow().FEATURE_NO_TITLE);
-        {
-            ActionBar ab = getActionBar();
-            if (ab != null) {
-                ab.setDisplayHomeAsUpEnabled(true);
-            }
-        }
+//        //全屏设置，隐藏窗口所有装饰
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);//清除FLAG
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        //标题是属于View的，所以窗口所有的修饰部分被隐藏后标题依然有效
+//        //requestWindowFeature(getWindow().FEATURE_NO_TITLE);
+//        {
+//            ActionBar ab = getActionBar();
+//            if (ab != null) {
+//                ab.setDisplayHomeAsUpEnabled(true);
+//            }
+//        }
         setContentView(R.layout.activity_main);
-        hwservice.EnterFullScreen();
+//        hwservice.EnterFullScreen();
         initView();//初始化View
         initScreen();
         initHandler();
@@ -3078,9 +3080,7 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
         mFaceEngine = new FaceEngine();
         mAfCode = mFaceEngine.init(this, FaceEngine.ASF_DETECT_MODE_VIDEO, FaceEngine.ASF_OP_0_ONLY,
                 16, MAX_DETECT_NUM, FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_LIVENESS);
-        /*VersionInfo versionInfo = new VersionInfo();
-        mFaceEngine.getVersion(versionInfo);
-        Log.i(TAG,"initEngine:  init: " + mAfCode + "  version:" + versionInfo);*/
+
         if (mAfCode != ErrorInfo.MOK) {
             showToast("初始化引擎失败");
         }
@@ -3094,9 +3094,9 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                 MainActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        /*if (ArcsoftManager.getInstance().mFaceDB.mRegister.isEmpty()) {
+                        if (ArcsoftManager.getInstance().mFaceDB.mRegister.isEmpty()) {
                             return;
-                        }*/
+                        }
                         if (FaceServer.getInstance().faceRegisterInfoList.isEmpty()) {
                             return;
                         }
@@ -3170,37 +3170,40 @@ public class MainActivity extends AndroidExActivityBase implements NfcReader.Acc
                 if (mFaceRectView != null) {
                     mFaceRectView.clearFaceInfo();
                 }
-                List<FacePreviewInfo> facePreviewInfoList = mFaceHelper.onPreviewFrame(nv21);
-                if (facePreviewInfoList != null && mFaceRectView != null && mDrawHelper != null) {
-                    List<DrawInfo> drawInfoList = new ArrayList<>();
-                    for (int i = 0; i < facePreviewInfoList.size(); i++) {
-                        String name = mFaceHelper.getName(facePreviewInfoList.get(i).getTrackId());
-                        drawInfoList.add(new DrawInfo(facePreviewInfoList.get(i).getFaceInfo().getRect(), GenderInfo.UNKNOWN, AgeInfo.UNKNOWN_AGE, LivenessInfo.UNKNOWN,
-                                name == null ? String.valueOf(facePreviewInfoList.get(i).getTrackId()) : name));
+                mFacePreviewInfoList = mFaceHelper.onPreviewFrame(nv21);
+//                List<FacePreviewInfo> facePreviewInfoList = mFaceHelper.onPreviewFrame(nv21);
+                if (mFacePreviewInfoList.size() != 0 && mFaceRectView != null && mDrawHelper != null) {
+        //                    mDrawInfoList = new ArrayList<>();
+                    for (int i = 0; i < mFacePreviewInfoList.size(); i++) {
+                        String name = mFaceHelper.getName(mFacePreviewInfoList.get(i).getTrackId());
+                        mDrawInfoList.add(new DrawInfo(mFacePreviewInfoList.get(i).getFaceInfo().getRect(), GenderInfo.UNKNOWN, AgeInfo.UNKNOWN_AGE, LivenessInfo.UNKNOWN,
+                                name == null ? String.valueOf(mFacePreviewInfoList.get(i).getTrackId()) : name));
                     }
-                    mDrawHelper.draw(mFaceRectView, drawInfoList);
+                    mDrawHelper.draw(mFaceRectView, mDrawInfoList);
+                    mDrawInfoList.clear();
                 }
 
-                clearLeftFace(facePreviewInfoList);
+                clearLeftFace(mFacePreviewInfoList);
 
-                if (facePreviewInfoList != null && facePreviewInfoList.size() > 0 && mPreviewSize != null) {
+                if (mFacePreviewInfoList != null && mFacePreviewInfoList.size() > 0 && mPreviewSize != null) {
 
-                    for (int i = 0; i < facePreviewInfoList.size(); i++) {
+                    for (int i = 0; i < mFacePreviewInfoList.size(); i++) {
                         if (livenessDetect) {
-                            livenessMap.put(facePreviewInfoList.get(i).getTrackId(), facePreviewInfoList.get(i).getLivenessInfo().getLiveness());
+                            livenessMap.put(mFacePreviewInfoList.get(i).getTrackId(), mFacePreviewInfoList.get(i).getLivenessInfo().getLiveness());
                         }
-                        /**
+    /*                    *
                          * 对于每个人脸，若状态为空或者为失败，则请求FR（可根据需要添加其他判断以限制FR次数），
                          * FR回传的人脸特征结果在{@link FaceListener#onFaceFeatureInfoGet(FaceFeature, Integer)}中回传
-                         */
-                        if (requestFeatureStatusMap.get(facePreviewInfoList.get(i).getTrackId()) == null
-                                || requestFeatureStatusMap.get(facePreviewInfoList.get(i).getTrackId()) == RequestFeatureStatus.FAILED) {
-                            requestFeatureStatusMap.put(facePreviewInfoList.get(i).getTrackId(), RequestFeatureStatus.SEARCHING);
-                            mFaceHelper.requestFaceFeature(nv21, facePreviewInfoList.get(i).getFaceInfo(), mPreviewSize.width, mPreviewSize.height, FaceEngine.CP_PAF_NV21, facePreviewInfoList.get(i).getTrackId());
+*/
+                        if (requestFeatureStatusMap.get(mFacePreviewInfoList.get(i).getTrackId()) == null
+                                || requestFeatureStatusMap.get(mFacePreviewInfoList.get(i).getTrackId()) == RequestFeatureStatus.FAILED) {
+                            requestFeatureStatusMap.put(mFacePreviewInfoList.get(i).getTrackId(), RequestFeatureStatus.SEARCHING);
+                            mFaceHelper.requestFaceFeature(nv21, mFacePreviewInfoList.get(i).getFaceInfo(), mPreviewSize.width, mPreviewSize.height, FaceEngine.CP_PAF_NV21, mFacePreviewInfoList.get(i).getTrackId());
 //                            Log.i(TAG, "onPreview: fr start = " + System.currentTimeMillis() + " trackId = " + facePreviewInfoList.get(i).getTrackId());
                         }
                     }
                 }
+                mFacePreviewInfoList.clear();
             }
 
             @Override
